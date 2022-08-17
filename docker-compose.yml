@@ -1,0 +1,88 @@
+version: '3.10'
+
+services:
+  backend:
+    build:
+      context: ./app
+      dockerfile: ./docker/backend/Dockerfile
+    container_name: backend
+    hostname: backend
+    volumes:
+      - static_volume:/home/master/app/staticfiles
+      - media_volume:/home/master/app/mediafiles
+      - ./app:/code/
+    ports:
+      - 8000:8000
+    env_file:
+      - env/.backend
+    depends_on:
+      - db
+      - redis
+    networks:
+      - project_book
+
+  db:
+    image: postgres:13.0
+    container_name: db
+    env_file:
+      - env/.db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - project_book
+
+  redis:
+    image: redis:6.0.9
+    container_name: redis
+    hostname: redis
+    command: redis-server /redis/redis.conf
+    env_file:
+      - env/.redis
+    ports:
+      - 6379:6379
+    volumes:
+      - ./redis:/data
+      - ./redis.conf:/redis/redis.conf
+    networks:
+      - project_book
+
+  worker:
+    build:
+      context: .
+      dockerfile: ./app/docker/worker/Dockerfile
+    container_name: worker
+    hostname: worker
+    env_file:
+      - env/.worker
+    volumes:
+      - ./app:/code
+      - ./logs:/code/logs
+    depends_on:
+      - redis
+      - db
+    networks:
+      - project_book
+
+  nginx:
+    build: ./nginx
+    container_name: nginx
+    hostname: nginx
+    volumes:
+      - static_volume:/home/master/app/staticfiles
+      - media_volume:/home/master/app/mediafiles
+      - ./logs:/home/master/app/logs
+    ports:
+      - 80:80
+    depends_on:
+      - backend
+    networks:
+      - project_book
+
+volumes:
+  static_volume:
+  media_volume:
+  postgres_data:
+
+networks:
+  project_book:
+    driver: bridge

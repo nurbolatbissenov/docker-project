@@ -1,0 +1,22 @@
+# PROJECT SECRET_KEY #####
+SECRET_KEY = 'django-insecure-pkc2g7w-ed&u$3f7s*lasbo42zh1gdph0bu!#e=r8*c5e97g2('
+
+DEBUG=True
+
+ALLOWED_HOSTS='* 8000 localhost'
+
+POSTGRES_HOST=db
+POSTGRES_PORT=5432
+POSTGRES_USER=admin
+POSTGRES_PASSWORD=admin
+POSTGRES_DB=project_book
+
+
+MEDIA_ROOT=/volumes/mediafiles
+STATIC_ROOT=/volumes/staticfiles
+
+CELERY_BROKER_URL = 'redis://redis:6379/2'
+CELERY_RESULT_BACKEND = 'redis://redis:6379/2'
+CELERY_ACCEPT_CONTENT = 'application/json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TASK_SERIALIZER = 'json'
